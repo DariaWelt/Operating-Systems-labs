@@ -1,26 +1,29 @@
 #pragma once
 
-#include "ConfigItem.h"
+#include <utility>
+#include <filesystem>
+#include <vector>
 
-class ConfigReader;
+namespace fs = std::filesystem;
+typedef std::pair<const fs::path, const int> ConfigItem;
 
 class ConfigReader {
 
-private:
-    std::vector<ConfigItem*>* items = nullptr;
-    bool isCorrect = true;
 public:
-    void read(fs::path& config);
+    void setPath(const fs::path& configPath) {
+        const_cast<fs::path&>(_configPath) = configPath;
+        _isInited = true;
+    }
 
-    bool getIsCorrect() const { return isCorrect; };
+    bool isInited() const { return _isInited; }
 
-    void print();
+    int readConfig();
 
-    void clean();
+    std::vector<ConfigItem>& getItems();
 
-    std::vector<ConfigItem*>* getItems() { return items; };
-
-    ConfigReader();
-
-    ~ConfigReader();
+private:
+    const fs::path _configPath;
+    bool _isInited = false;
+    std::vector<ConfigItem> _items;
+    static inline const int _rootDepth = 1;
 };

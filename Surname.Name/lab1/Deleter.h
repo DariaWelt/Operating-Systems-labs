@@ -2,14 +2,14 @@
 
 #include "ConfigReader.h"
 
-//#define ConfigItem Item
 class Deleter {
 public:
-    static void clean(ConfigItem* item);
+    static void deleteDirs(const std::vector<ConfigItem>& items);
 
-    static ConfigItem* data;
-    static std::vector<fs::path>* list;
+private:
+    static void _deleteItem(const ConfigItem& item);
 
-    static void traversalTree(fs::path& curPath, int curDepth);
+    static void _traverseTree(const fs::path& currPath, const int currDepth, const int maxDepth);
+
+    static const int _rootDepth = 1;
 };
-
