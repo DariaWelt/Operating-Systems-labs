@@ -18,10 +18,7 @@ void Daemon::start() {
     daemonize();
     syslog(LOG_NOTICE, "Daemon started");
 
-    std::vector<std::time_t> last_modified_time;
-    for (size_t idx = 0; idx < config.get_entries().size(); ++idx) {
-        last_modified_time.push_back(0);
-    }
+    std::vector<std::time_t> last_modified_time(config.get_entries().size(), 0);
 
     while (true) {
         const std::vector<std::tuple<fs::path, fs::path, std::time_t>> &entries = config.get_entries();
@@ -51,7 +48,7 @@ Daemon &Daemon::create(const std::string &path_to_config) {
 
 Daemon::Daemon(const std::string &path_to_config) {
     config_path = fs::absolute(path_to_config);
-    pid_file_path = fs::absolute("mydaemon.pid");
+    pid_file_path = fs::absolute("/run/mydaemon.pid");
     config = Config(config_path);
 }
 
