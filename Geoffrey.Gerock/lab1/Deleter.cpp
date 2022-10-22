@@ -18,8 +18,12 @@ void Deleter::_deleteItem(const ConfigItem& item) {
     // save the dirs and files at `rootDepth + 1` depth to delete only them,
     // not the moved from the further depth
     std::vector<fs::directory_entry> toRemove(begin(it), end(it));
-    _traverseTree(localRoot, _rootDepth + 1, depth);
-    std::for_each(toRemove.begin(), toRemove.end(), [](const auto& entry) { fs::remove_all(entry.path()); });
+    try {
+        _traverseTree(localRoot, _rootDepth + 1, depth);
+        std::for_each(toRemove.begin(), toRemove.end(), [](const auto& entry) { fs::remove_all(entry.path()); });
+    } catch (fs::filesystem_error& err) {
+        syslog(LOG_ERR, "%s", err.what());
+    }
 }
 
 void Deleter::_traverseTree(const fs::path& currPath, const int currDepth, const int maxDepth) {
