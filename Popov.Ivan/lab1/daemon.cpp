@@ -11,72 +11,22 @@
 #include <unistd.h>
 #include <cstring>
 
-#define SUCCESS 0
-
-// Utility function to check if directory is exist
-bool IsDirectoryExists(std::string path)
-{
-  struct stat st;
-  if(stat(path.c_str(), &st) == 0) {
-    if((st.st_mode & S_IFDIR) == S_IFDIR) {
-      return true;
-    }
-  }
-  return false;
-}
-
-// Utility function to copy file
-bool copyFile(std::string filePath, std::string dest)
-{
-  std::filesystem::path sourcePath = filePath;
-  std::filesystem::path targetPath = dest;
-  auto target = targetPath / sourcePath.filename();
-  try {
-    std::filesystem::copy_file(sourcePath, target);  
-  }
-  catch (std::exception& e) {
-    return false;
-  }
-  return true;
-}
-
 // Utility function to delete all files and directories in given folder
-int DeleteFilesInDirectory(std::string path)
+void DeleteFilesInDirectory(std::string path)
 {
-  if (path.empty()) {
-    return SUCCESS;
+  for (auto& dir : std::filesystem::directory_iterator(path)) {
+    std::filesystem::remove_all(dir);
   }
+}
 
-  int returnCode;
-  DIR* folder = opendir(path.c_str());
-  struct dirent* nextFile;
-  char filePath[PATH_MAX];
-
-  if (folder == NULL) {
-    return errno;
-  }
-
-  while ((nextFile = readdir(folder)) != NULL) {
-    sprintf(filePath, "%s/%s", path.c_str(), nextFile->d_name);
-    if ((strcmp(nextFile->d_name,"..") == 0) || (strcmp(nextFile->d_name,".") == 0)) {
-      continue;
-    }
-    if (IsDirectoryExists(filePath)) {
-      returnCode = DeleteFilesInDirectory(filePath);
-      if (returnCode != SUCCESS) {
-        closedir(folder);
-        return returnCode;
-      }
-    }
-    returnCode = remove(filePath);
-    if (returnCode != SUCCESS && returnCode != ENOENT) {
-        closedir(folder);
-        return returnCode;
+// Utility function to copy all files with specific extension from one directory to another
+void CopyFilesWithExtension(std::string directoryFrom, std::string directoryTo, std::string extension)
+{
+  for (auto& file : std::filesystem::directory_iterator(directoryFrom)) {
+    if (file.path().extension() == extension) {
+      std::filesystem::copy_file(file, directoryTo / file.path().filename());
     }
   }
-
-  closedir(folder);
-  return SUCCESS;
 }
 
 // Utility function to handle signals
@@ -144,7 +94,7 @@ void Daemon::Fork()
 void Daemon::WriteToPID()
 {
   syslog(LOG_INFO, "Writing to PID file");
-  std::ofstream pidFile(PID_PATH.c_str());
+  std::ofstream pidFile(PID_PATH);
   if (!pidFile.is_open()) {
     syslog(LOG_ERR, "Error while opening PID file");
     exit(EXIT_FAILURE);
@@ -169,39 +119,27 @@ void Daemon::CopyAndDelete()
   }
 
   std::string directoryFrom = Config::GetInstance().GetDirectoryFromPath();
-  if (!IsDirectoryExists(directoryFrom)) {
+  if (!std::filesystem::is_directory(directoryFrom)) {
     syslog(LOG_ERR, "Directory %s doesn't exist", directoryFrom.c_str());
     return;
   }
   std::string directoryTo = Config::GetInstance().GetDirectoryToPath();
-  if (!IsDirectoryExists(directoryFrom)) {
+  if (!std::filesystem::is_directory(directoryFrom)) {
     syslog(LOG_ERR, "Directory %s doesn't exist", directoryTo.c_str());
     return;
   }
 
-  // Remove recursively all from second folder
-  syslog(LOG_INFO, "Deleting all in %s", directoryTo.c_str());
-  DeleteFilesInDirectory(directoryTo);
-  // Copy all .bk files from first folder to second folder
-  syslog(LOG_INFO, "Copying .bs files from %s", directoryFrom.c_str());
-  struct dirent* file;
-  DIR* folder = opendir(directoryFrom.c_str());
-  if (folder) {
-    while ((file = readdir(folder)) != NULL) {
-      char* fileName = file->d_name;
-      strtok(fileName, ".");
-      char* ptr2 = strtok(NULL, ".");
-      if (ptr2 != NULL) {
-        if (strcmp(ptr2, FILE_EXTENSION.c_str()) == 0) {
-          std::string filePath = directoryFrom + "/" + fileName + "." + ptr2;
-          if (!copyFile(filePath, directoryTo)) {
-            syslog(LOG_WARNING, "Couldn't copy %s", filePath.c_str());
-          }
-        } 
-      }
-    }
+  try {
+    // Remove recursively all from second folder
+    syslog(LOG_INFO, "Deleting all in %s", directoryTo.c_str());
+    DeleteFilesInDirectory(directoryTo);
+    // Copy all .bk files from first folder to second folder
+    syslog(LOG_INFO, "Copying .bk files from %s", directoryFrom.c_str());
+    CopyFilesWithExtension(directoryFrom, directoryTo, FILE_EXTENSION);
   }
-
+  catch(std::filesystem::filesystem_error& e) {
+    syslog(LOG_ERR, "%s", e.what());
+  }
 }
 
 // Function to initialize Daemon instance with config file
@@ -210,9 +148,7 @@ void Daemon::Initialize(const std::string configPath)
   openlog("bk_copier_daemon", LOG_NDELAY | LOG_PID, LOG_USER);
   syslog(LOG_INFO, "Initializing daemon");
 
-  char configPathBuf[PATH_MAX];
-  getcwd(configPathBuf, sizeof(configPathBuf));
-  Config::GetInstance().SetConfigPath(std::string(configPathBuf) + "/" + configPath);
+  Config::GetInstance().SetConfigPath(std::filesystem::absolute(configPath));
   CheckPid();
   Fork();
   WriteToPID();

@@ -18,7 +18,7 @@ class Config
     bool isValidConfig = false;
 
     // Constructors and assignment operator are hidden
-    Config() {}
+    Config() = default;
     Config(Config const&) = delete;
     void operator=(Config const&) = delete;
   public:
