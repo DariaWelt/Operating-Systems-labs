@@ -25,5 +25,5 @@ private:
     const fs::path _configPath;
     bool _isInited = false;
     std::vector<ConfigItem> _items;
-    static inline const int _rootDepth = 1;
+    static inline const int _rootDepth = 0;
 };
