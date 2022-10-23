@@ -11,5 +11,5 @@ private:
 
     static void _traverseTree(const fs::path& currPath, const int currDepth, const int maxDepth);
 
-    static const int _rootDepth = 1;
+    static const int _rootDepth = 0;
 };
