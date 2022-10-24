@@ -11,6 +11,8 @@ private:
     void copy();
     static Daemon instance;
     Daemon() = default;
+    Daemon(const Daemon&) = delete;
+    Daemon& operator=(Daemon&) = delete;
 public:
     static Daemon& getInstance() {
         return instance;

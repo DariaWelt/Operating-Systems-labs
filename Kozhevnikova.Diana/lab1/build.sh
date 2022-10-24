@@ -9,3 +9,4 @@ cmake ..
 make
 cd ..
 cp $BUILD_DIR/$EXECUTABLE_NAME .
+rm -r $BUILD_DIR
