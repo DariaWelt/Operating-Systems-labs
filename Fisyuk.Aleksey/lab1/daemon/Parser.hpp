@@ -13,7 +13,7 @@ public:
     class Grammar {
     public:
         enum ConfigParams{
-            TIME_DELAY,
+            TIME_DELAY = 0,
             DIRECTORY1,
             DIRECTORY2,
             DEFAULT,
@@ -21,7 +21,7 @@ public:
 
         Grammar();
         int getGrammarCount();
-        ConfigParams getGrammarValue(std::string value);
+        ConfigParams getGrammarValue(const std::string& value);
 
     private:
         const std::map<std::string, ConfigParams> _grammar;

@@ -18,7 +18,7 @@ Daemon& Daemon::getInstance(){
         return _instance;
 }
 
-string Daemon::getAbsolutePath(const string &path) {
+const string Daemon::getAbsolutePath(const string &path) {
     if (path.empty() || path[0] == '/') {
         return path;
     }
@@ -91,7 +91,7 @@ void Daemon::setConfig(const std::string &configFile) {
     syslog(LOG_INFO, "Trying read config file - %s", _configFile.c_str());
 }
 
-bool Daemon::initTread() {
+const bool Daemon::initTread() {
     syslog(LOG_INFO, "Starting init thread...");
     pid_t pid_t = fork();
     if (pid_t == -1) {
@@ -103,7 +103,7 @@ bool Daemon::initTread() {
     return false;
 }
 
-bool Daemon::initPid(){
+const bool Daemon::initPid(){
     if (setsid() == -1) {
         throw std::runtime_error("ERROR: Setsid return error");
     }
@@ -127,7 +127,7 @@ bool Daemon::initPid(){
     return true;
 }
 
-void Daemon::checkPid() {
+const void Daemon::checkPid() {
     syslog(LOG_INFO, "Handle PID file...");
     std::ifstream pidFile(_pidFilePath);
     if (!pidFile.is_open()) {
@@ -146,7 +146,7 @@ void Daemon::checkPid() {
     savePid();
 }
 
-void Daemon::savePid() {
+const void Daemon::savePid() {
     syslog(LOG_INFO, "Saving pid file...");
     std::ofstream out(_pidFilePath);
     if (!out.is_open()) {
@@ -182,7 +182,7 @@ void Daemon::walkThroughFile(const string& path){
     }
 }
 
-void Daemon::copyContent(const string& filePath){
+const void Daemon::copyContent(const string& filePath){
         if(!std::filesystem::exists(filePath)) {
             throw std::runtime_error("ERROR: Undefined file path");
         }
@@ -201,7 +201,7 @@ void Daemon::copyContent(const string& filePath){
         }
 }
 
-bool Daemon::isLogFile(const string& file){
+const bool Daemon::isLogFile(const string& file){
     std::regex reg("." + targetFileFormat + "$");
     return regex_search(file, reg);
 }
