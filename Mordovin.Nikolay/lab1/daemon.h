@@ -20,7 +20,7 @@ private:
     std::string m_dir2Path;
 
 public:
-    void Init(const std::string configPath);
+    void Init(const std::string &configPath);
     void Run(void);
     void Terminate(void);
     void RereadConfig(void);

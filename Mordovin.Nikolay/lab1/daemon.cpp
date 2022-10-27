@@ -1,5 +1,4 @@
 #include "daemon.h"
-#include <iostream>
 #include <limits.h>
 #include <unistd.h>
 #include <syslog.h>
@@ -59,7 +58,10 @@ void Daemon::CreateNewProcess(void)
     pid_t pid = fork();
 
     if (pid < 0)
+    {
+        syslog(LOG_ERR, "Fork error!");
         exit(EXIT_FAILURE);
+    }
 
     if (pid > 0)
         exit(EXIT_SUCCESS);
@@ -67,10 +69,16 @@ void Daemon::CreateNewProcess(void)
     umask(0);
 
     if (setsid() < 0)
+    {
+        syslog(LOG_ERR, "Process group setting error!");
         exit(EXIT_FAILURE);
+    }
 
     if (chdir("/") < 0)
+    {
+        syslog(LOG_ERR, "Failed to change to root directory");
         exit(EXIT_FAILURE);
+    }
 
     syslog(LOG_INFO, "Writing pid in file");
     std::ofstream pidFile(PID_PATH);
@@ -113,21 +121,12 @@ void Daemon::ReadConfig(void)
     }
 
     syslog(LOG_INFO, "Checking if these directories exist");
-    struct stat st1, st2;
 
-    if (stat(path1.c_str(), &st1) == 0 && stat(path2.c_str(), &st2) == 0)
+    if (std::filesystem::is_directory(path1) && std::filesystem::is_directory(path2))
     {
-        if ((st1.st_mode & S_IFDIR) != 0 && (st2.st_mode & S_IFDIR) != 0)
-        {
-            syslog(LOG_INFO, "Directories found");
-            m_dir1Path = path1.c_str();
-            m_dir2Path = path2.c_str();
-        }
-        else
-        {
-            syslog(LOG_WARNING, "Directories not found");
-            return;
-        }
+        syslog(LOG_INFO, "Directories found");
+        m_dir1Path = path1.c_str();
+        m_dir2Path = path2.c_str();
     }
     else
     {
@@ -146,7 +145,7 @@ void Daemon::RereadConfig(void)
     ReadConfig();
 }
 
-void Daemon::Init(const std::string configPath)
+void Daemon::Init(const std::string &configPath)
 {
     char buf[PATH_MAX];
     getcwd(buf, sizeof(buf));
@@ -188,7 +187,7 @@ void Daemon::MoveFiles(void)
 
     auto time_now = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     struct stat buff;
-    std::vector<std::filesystem::__cxx11::path> filesToMove1, filesToMove2;
+    std::vector<std::filesystem::path> filesToMove1, filesToMove2;
 
     for (const auto &entry : std::filesystem::directory_iterator(m_dir1Path))
     {
@@ -213,8 +212,8 @@ void Daemon::MoveFiles(void)
     for (auto &filePath : filesToMove1)
         std::filesystem::rename(filePath, m_dir2Path / filePath.filename());
 
-    for (auto & filePath: filesToMove2)
-        std::filesystem::rename(filePath,m_dir1Path/filePath.filename());
-    
+    for (auto &filePath : filesToMove2)
+        std::filesystem::rename(filePath, m_dir1Path / filePath.filename());
+
     syslog(LOG_INFO, "Files moved successfully");
 }
