@@ -36,13 +36,13 @@ private:
     void setConfig(const std::string &configFile);
     void walkThroughFile(const string& path);
     void loadConfig();
-    const string getAbsolutePath(const string &path);
-    const bool initTread();
-    const bool initPid();
-    const void checkPid();
-    const void savePid();
-    const void copyContent(const string& filePath);
-    const bool isLogFile(const string& file);
+    string getAbsolutePath(const string &path) const;
+    bool initTread() const;
+    bool initPid() const;
+    void checkPid() const;
+    void savePid() const;
+    void copyContent(const string& filePath) const;
+    bool isLogFile(const string& file) const;
     
     const string targetFileFormat = "log";
     string _inputDir, _outputDir;
