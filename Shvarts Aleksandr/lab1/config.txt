@@ -1,0 +1,2 @@
+/home/aleksandr/Operating-Systems-labs/Shvarts Aleksandr/lab1/test1
+/home/aleksandr/Operating-Systems-labs/Shvarts Aleksandr/lab1/test2

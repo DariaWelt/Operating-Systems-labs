@@ -9,7 +9,8 @@ int main(int argc, char** argv) {
         std::cout << "Wrong arguments count!";
         exit(EXIT_FAILURE);
     }
-    Daemon::getInstance().setConfig(argv[1]);
+	auto configPath = fs::current_path() / argv[1];
+    Daemon::getInstance().setConfig(configPath);
     Daemon::getInstance().run();
     return EXIT_SUCCESS;
 }
