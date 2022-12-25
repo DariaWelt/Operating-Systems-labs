@@ -13,7 +13,7 @@ public:
     struct Message {
         bool goat_status;
         size_t goat_number;
-    }; 
+    };
 
     static bool time_out(struct timespec* ts) {
         int rc = clock_gettime(CLOCK_REALTIME, ts);

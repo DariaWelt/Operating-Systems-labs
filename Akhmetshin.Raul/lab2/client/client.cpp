@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
-        std::cout << "Invalid arguments. Must be two args, second arg - host pid" << std::endl;
+        std::cout << "Invalid arguments. Must be one args - host pid" << std::endl;
         return -1;
     }
 

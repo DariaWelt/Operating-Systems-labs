@@ -15,7 +15,7 @@
 std::unique_ptr<Goat> Goat::goat = nullptr;
 
 Goat::Goat() : is_alive(true) {
-    struct sigaction act; 
+    struct sigaction act;
     memset(&act, 0, sizeof(act));
     act.sa_sigaction = signal_handler;
     act.sa_flags = SA_SIGINFO;
@@ -58,6 +58,8 @@ void Goat::signal_handler(int signal_id, siginfo_t* info, void* ptr) {
     case SIGTERM:
         inst.continue_the_game = false;
         syslog(LOG_INFO, "Client receive siganl to finish the game");
+        //exit(EXIT_SUCCESS);
+        inst.end_work();
         break;
     }
 

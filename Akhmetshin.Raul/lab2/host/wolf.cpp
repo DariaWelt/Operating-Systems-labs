@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include <string>
 
 
 std::unique_ptr<Wolf> Wolf::wolf = nullptr;
@@ -27,9 +28,10 @@ Wolf::Wolf() {
     openlog(NULL, LOG_PID, 0);
 }
 
+
 Wolf::~Wolf() {
     for (pid_thread_t::iterator iter = goats.begin(); iter != goats.end(); ++iter) {
-        sem_t* host_sem = sem_open((Semaphores::host_semaphore_name + std::to_string(iter->first)).c_str(), 0);
+        sem_t* host_sem = sem_open(( Semaphores::host_semaphore_name + std::to_string(iter->first)).c_str(), 0);
         sem_t* client_sem = sem_open((Semaphores::client_semaphore_name + std::to_string(iter->first)).c_str(), 0);
 
         if (sem_close(host_sem) == -1) {
@@ -101,6 +103,9 @@ void Wolf::signal_handler(int signal_id, siginfo_t* info, void* ptr) {
         }
     case SIGINT:
     case SIGTERM: {
+        for (pid_thread_t::iterator iter = inst.goats.begin(); iter != inst.goats.end(); ++iter) {
+            kill(iter->first, SIGTERM);
+        }
         inst.continue_the_game = false;
         free(inst.wnd);
         free(inst.q_app);

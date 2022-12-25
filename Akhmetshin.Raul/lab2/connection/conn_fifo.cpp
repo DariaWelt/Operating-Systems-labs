@@ -10,7 +10,7 @@ namespace {
     class ConnectionFifo : public Connection {
     private:
         static std::string const pathname;
-         
+
         std::string name;
 
     public:

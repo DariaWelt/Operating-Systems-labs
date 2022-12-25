@@ -4,11 +4,10 @@
 
 class Connection {
 protected:
-    // std::string name; 
+
     int desc;
     bool is_creater;
 
-    // void* shm;
 
 public:
     static Connection* create(size_t id, bool create, size_t msg_size = 0);

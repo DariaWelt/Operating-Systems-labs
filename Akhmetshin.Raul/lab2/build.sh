@@ -6,11 +6,8 @@ cmake -B ./build -S ./
 cd build
 make
 
-for conn_type in "shm" "mq" "fifo"
-do
-    cp -a ./"host_${conn_type}" ./../
-    cp -a ./"client_${conn_type}" ./../
-done
+rm -rf host*autogen; mv host* ../
+rm -rf client*autogen; mv client* ../
 
 cd ..
 rm -r build

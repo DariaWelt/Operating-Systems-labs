@@ -19,7 +19,7 @@ private:
     bool host_is_ready = false;
     bool continue_the_game = true;
 
-    struct timespec send_request_to_connect_time; 
+    struct timespec send_request_to_connect_time;
 
 public:
     Goat();

@@ -11,7 +11,7 @@ namespace {
         static std::string const pathname;
 
         std::string name;
-         
+
     public:
         ConnectionMq(size_t id, bool create, size_t msg_size);
         ~ConnectionMq();

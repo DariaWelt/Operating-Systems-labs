@@ -10,7 +10,7 @@ public:
     static size_t const min_number_for_goat = 1;
 
     static size_t const alive_goat_dividend = 70;
-    static size_t const dead_goat_dividend = 20; 
+    static size_t const dead_goat_dividend = 20;
 
     static size_t const steps_for_end_game = 2;
 
