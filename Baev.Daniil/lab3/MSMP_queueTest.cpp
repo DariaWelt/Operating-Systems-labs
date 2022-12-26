@@ -144,7 +144,7 @@ bool MSMPQueuePopTest(size_t threadNum, int numberForOneThread, int repeatNum){
             int res = pthread_join(thConsumers[num * threadNum + i], nullptr);
             if (res != 0)
                 std::cout << "ERROR: thread join failed " << num * threadNum + i << std::endl;
-       }
+        }
     }
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -181,7 +181,7 @@ bool MSMPQueuePushPopTest(int number, int repeatNum){
     std::cout << maxThreadNum << std::endl;
     int produserThreadNum;
     int consumerThreadNum;
-    for (produserThreadNum = 1; produserThreadNum < maxThreadNum; ++produserThreadNum){
+   for (produserThreadNum = 1; produserThreadNum < maxThreadNum; ++produserThreadNum){
         for (consumerThreadNum = 1; consumerThreadNum + produserThreadNum <= maxThreadNum; ++consumerThreadNum){
             std::cout << produserThreadNum << ' ' << consumerThreadNum << std::endl;
 

@@ -8,13 +8,33 @@
 template<typename T>
 class lock_free_queue{
 public:
+    void testQueue(){
+        std::cout << "TEST" << std::endl;
+        node* current_ptr = head.load().ptr;
+        while (current_ptr != tail.load().ptr){
+            std::cout << *current_ptr->data.load() << " ";
+            current_ptr = current_ptr->next.load().ptr;
+        }
+    }
+
     lock_free_queue(){
         counted_node_ptr new_head;
         new_head.external_count = 1;
         new_head.ptr = new node;
-        new_head.ptr->data = nullptr;
         head.store(new_head);
-        tail.store(head.load());
+        counted_node_ptr new_tail;
+        new_tail.external_count = 1;
+        new_tail.ptr = new_head.ptr;
+        tail.store(new_tail);
+    }
+
+    ~lock_free_queue(){
+        counted_node_ptr old_head = head.load();
+        while (node* const old_node = old_head.ptr){
+            head.store(old_node->next);
+            delete old_node;
+            old_head = head.load();
+        }
     }
 
     bool empty(){
@@ -35,20 +55,29 @@ public:
             T* old_data = nullptr;
             if(old_tail.ptr->data.compare_exchange_strong(old_data, new_data.get())){
                 counted_node_ptr old_next = {0};
+                //std::cout << old_next.external_count << ' ' << old_next.ptr << std::endl;
+                //std::cout << old_tail.ptr->next.load().external_count << ' ' << old_tail.ptr->next.load().ptr << std::endl;
                 if(!old_tail.ptr->next.compare_exchange_strong(old_next, new_next)){
+                    //std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    ";
                     delete new_next.ptr;
                     new_next = old_next;
                 }
                 set_new_tail(old_tail, new_next);
                 new_data.release();
+                //std::cout << *old_tail.ptr->data << ' ';
+                //testQueue();
+                //std::cout << std::endl;
                 break;
             }
             else{
+                //std::cout << "HELP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!    ";
                 counted_node_ptr old_next = {0};
                 if(old_tail.ptr->next.compare_exchange_strong(old_next, new_next)){
+                    //std::cout << "Help not need!!!!!!!!!!!!!!!!!!!";
                     old_next = new_next;
                     new_next.ptr = new node;
                 }
+                //std::cout << std::endl;
                 set_new_tail(old_tail, old_next);
             }
         }
@@ -60,6 +89,7 @@ public:
             increase_external_count(head, old_head);
             node* const ptr = old_head.ptr;
             if(ptr == tail.load().ptr){
+                ptr->release_ref();
                 return std::unique_ptr<T>();
             }
             counted_node_ptr next = ptr->next.load();
@@ -97,12 +127,17 @@ private:
             new_count.internal_count = 0;
             new_count.external_counters = 2;
             count.store(new_count, std::memory_order_relaxed);
+            data = nullptr;
 
             counted_node_ptr new_next;
             new_next.ptr = nullptr;
             new_next.external_count = 0;
             next.store(new_next);
         }
+
+        ~node() { 
+            delete data.load(); 
+        } 
 
         void release_ref(){
             node_counter old_counter = count.load(std::memory_order_relaxed);
@@ -146,7 +181,7 @@ private:
     void set_new_tail(counted_node_ptr& old_tail, counted_node_ptr const& new_tail){
         node* const current_tail_ptr = old_tail.ptr;
         while(!tail.compare_exchange_weak(old_tail, new_tail) && old_tail.ptr == current_tail_ptr);
-        
+
         if(old_tail.ptr == current_tail_ptr)
             free_external_counter(old_tail);
         else

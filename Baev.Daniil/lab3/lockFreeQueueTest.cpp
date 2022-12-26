@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <chrono>
-//#define CPP11_ATOMIC //to use std::atomic in test
+#define CPP11_ATOMIC //to use std::atomic in test
 #define CPP11  //to use built-in functions for Memory Model Aware Atomic Operations
 #ifdef CPP11_ATOMIC
     #include <atomic>
@@ -32,13 +32,17 @@ static void* LockFreeQueueProduser(void* args){
     LockFreeQueueProduserArgs* params = (LockFreeQueueProduserArgs*)args;
     for (int i = params->startNum; i <= params->endNum; ++i){
         params->queue->push(i);
+        //std::cout << "Push " << i << ' ';
     }
+    //std::cout << std::endl;
+    std::cout << "Pushed " << params->endNum - params->startNum + 1<< " number" << std::endl;
     return nullptr;
 }
 
 static void* LockFreeQueueConsumer(void* args){
     LockFreeQueueConsumerArgs* params = (LockFreeQueueConsumerArgs*)args;
     int readNum = 0;
+    int readFailed = 0;
     while(readNum < params->numberForOneTest){
         std::unique_ptr<int> num = params->queue->pop();
         if (num != nullptr){
@@ -52,8 +56,23 @@ static void* LockFreeQueueConsumer(void* args){
             #endif
             #endif
             readNum++;
+            //std::cout << "Pop " << *num;
+            readFailed = 0;
         }   
+        else{
+            //std::cout << "Failed pop ";
+            readFailed++;
+            sched_yield();
+            if (readFailed > 10000000){
+                std::cout << "Many failed of read" << std::endl;
+                std::cout << "Read " << readNum << std::endl;
+                params->queue->testQueue();
+                break;
+            }
+        }
     }
+    std::cout << "Total read " << readNum << std::endl;
+    //std::cout << std::endl;
     return nullptr;
 }
 
@@ -77,7 +96,7 @@ bool lockFreeQueuePushTest(size_t threadNum, int numberForOneThread, int repeatN
             int res = pthread_join(thProdusers[num * threadNum + i], nullptr);
             if (res != 0)
                 std::cout << "ERROR: thread join failed " << num * threadNum + i << std::endl;
-            }
+        }
     }
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -87,6 +106,8 @@ bool lockFreeQueuePushTest(size_t threadNum, int numberForOneThread, int repeatN
     for (size_t i = 0; i < threadNum * repeatNum; ++i){
         delete produsersArgs[i];
     }
+
+    //lockFreeQueue->testQueue();
 
     std::vector<int> numInQueue;
     numInQueue.resize(threadNum * numberForOneThread);
@@ -105,13 +126,15 @@ bool lockFreeQueuePushTest(size_t threadNum, int numberForOneThread, int repeatN
         std::cout << "FAILED TEST: to many number in queue" << std::endl;
         return false;
     }
-    for (size_t i = 0; i < threadNum * numberForOneThread; ++i)
-        if(numInQueue[i] != repeatNum){
-            std::cout << "FAILED TEST: to many repeat " << i << " in queue" << std::endl;
-            return false;
-        }
 
-    return true;
+    bool isFailed = false;
+    for (size_t i = 0; i < threadNum * numberForOneThread; ++i){
+        if(numInQueue[i] != repeatNum){
+            std::cout << "FAILED TEST: to many repeat " << i << " in queue" << numInQueue[i] << "numbaer" << std::endl;
+            isFailed = true;
+        }
+    }
+    return !isFailed;
 }
 
 bool lockFreeQueuePopTest(size_t threadNum, int numberForOneThread, int repeatNum){
@@ -128,11 +151,10 @@ bool lockFreeQueuePopTest(size_t threadNum, int numberForOneThread, int repeatNu
 
     for (size_t i = 0; i < numberForOneThread * threadNum * repeatNum; ++i){
         checkingVec[i] = 0;
-    }
-
-    for (size_t i = 0; i < numberForOneThread * threadNum * repeatNum; ++i){
         lockFreeQueue->push(i);
     }
+
+    //lockFreeQueue->testQueue();
 
     auto start = std::chrono::steady_clock::now();
     for (int num = 0; num < repeatNum; ++num){
@@ -157,7 +179,6 @@ bool lockFreeQueuePopTest(size_t threadNum, int numberForOneThread, int repeatNu
         delete consumersArgs[i];
     }
     
-
     if (!lockFreeQueue->empty()){
         std::cout << "FAILED TEST: to many number in queue" << std::endl;
         return false;
@@ -204,6 +225,7 @@ bool lockFreeQueuePushPopTest(int number, int repeatNum){
 
             auto start = std::chrono::steady_clock::now();
             for (int num = 0; num < repeatNum; ++num){
+                std::cout << "Num " << num << std::endl;
                 for (int i = 0; i < produserThreadNum; ++i){
                     int startNum = (int)(i * (number / produserThreadNum));
                     int endNum;
@@ -238,6 +260,7 @@ bool lockFreeQueuePushPopTest(int number, int repeatNum){
                     if (res != 0)
                     std::cout << "ERROR: thread join failed " << num * consumerThreadNum + i << std::endl;
                 }
+                std::cout << std::endl << std::endl;
             }
             auto end = std::chrono::steady_clock::now();
             std::chrono::duration<double> elapsed_seconds = end - start;
@@ -255,18 +278,23 @@ bool lockFreeQueuePushPopTest(int number, int repeatNum){
                 std::cout << "FAILED TEST: to many number in queue" << std::endl;
                 return false;
             }
-            for (int i = 0; i < number; ++i)
+            bool isFailed = false;
+            for (int i = 0; i < number; ++i){
             #ifdef CPP11_ATOMIC
                 if(checkingVec[i].load() != repeatNum){
-                    std::cout << "FAILED TEST: to many repeat " << i << " in queue" << std::endl;
-                    return false;
+                    std::cout << "FAILED TEST: to many repeat " << i << " in queue " << checkingVec[i] << " numbers " << std::endl;
+                    isFailed = true;
                 }
             #else
                 if(checkingVec[i] != repeatNum){
                     std::cout << "FAILED TEST: to many repeat " << i << " in queue" << std::endl;
-                    return false;
+                    isFailed = true;
                 }
-        #endif
+            #endif
+            }
+            if (isFailed){
+                return !isFailed;
+            }
         }
     }
     return true;
