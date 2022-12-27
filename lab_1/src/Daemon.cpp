@@ -5,8 +5,8 @@
 #include "filesystem"
 #include "Daemon.h"
 
-constexpr char s_ident[] = "ANTONOV_DAEMON";
-constexpr char s_pidFilePath[] = "/var/run/antonov_lab1.pid";
+constexpr char s_ident[] = "YUPICHKIN_DAEMON";
+constexpr char s_pidFilePath[] = "/var/run/yupichkin_lab1.pid";
 
 Daemon* Daemon::m_instance;
 
