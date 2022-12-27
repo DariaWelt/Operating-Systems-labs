@@ -1,7 +1,6 @@
 #ifndef DAEMON_CONFIGPARSER_H
 #define DAEMON_CONFIGPARSER_H
 
-
 #include <string>
 #include <array>
 #include <fstream>
@@ -9,15 +8,13 @@
 
 #include "RC.h"
 
-class ConfigParser
-{
+class ConfigParser {
 private:
   static constexpr char delimiter[] = ";";
 private:
   static std::vector<std::string> split(const std::string& src);
 public:
-  struct Params
-  {
+  struct Params {
     std::string srcFolder;
     std::string dstFolder;
     std::string extension;
