@@ -1,4 +1,4 @@
-CFLAGS = -std=c++17 -Wall -Werror -I client/ -I conn/ -I host/ -I utils/
+CFLAGS = -std=c++17 -Wall -Werror -I client/ -I conn/ -I host/ -I utils/ -I gui/
 PFLAGS = -lpthread -lrt
 
 CONNS = $(shell find ./conn -name 'conn_*.cpp')
