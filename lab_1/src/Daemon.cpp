@@ -154,9 +154,12 @@ void Daemon::init(string const& configFilePath)
 
 int Daemon::execute()
 {
-  if(m_inited)
-  {
-    bool isValid = true;
+  if(!m_inited) {
+    syslog(LOG_ERR, "Is not inited");
+    return 1;
+  }
+
+  bool isValid = true;
     while (isValid && m_inited)
     {
       syslog(LOG_INFO, "Executed");
@@ -170,9 +173,7 @@ int Daemon::execute()
       sleep(m_timeInterval);
     }
     return isValid;
-  }
-  syslog(LOG_ERR, "Is not inited");
-  return 1;
+
 }
 
 bool Daemon::copyFilesFromDir(const string& srcDir, const string& dstDir,
