@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+  <ui version="4.0">
+   <class>ChatWindow</class>
+   <widget class="QMainWindow" name="ChatWindow">
+    <property name="geometry">
+     <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>800</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+    <width>0</width>
+    <height>0</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+    <width>16777215</width>
+    <height>16777215</height>
+     </size>
+    </property>
+    <property name="palette">
+     <palette>
+    <active>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="60">
+      <red>0</red>
+      <green>187</green>
+      <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </active>
+    <inactive>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="60">
+      <red>0</red>
+      <green>187</green>
+      <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </inactive>
+    <disabled>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+      <red>240</red>
+      <green>240</green>
+      <blue>240</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </disabled>
+     </palette>
+    </property>
+    <property name="windowTitle">
+     <string>ChatWindow</string>
+    </property>
+    <widget class="QWidget" name="centralwidget">
+     <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QListWidget" name="chatWidget"/>
+      </item>
+      <item>
+       <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QLineEdit" name="inputWidget">
+       <property name="palette">
+        <palette>
+         <active>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="30">
+           <red>8</red>
+           <green>156</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+         </active>
+         <inactive>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="30">
+           <red>8</red>
+           <green>156</green>
+           <blue>255</blue>
+          </color>
+         </brush>
+        </colorrole>
+         </inactive>
+         <disabled>
+        <colorrole role="Base">
+         <brush brushstyle="SolidPattern">
+          <color alpha="255">
+           <red>240</red>
+           <green>240</green>
+           <blue>240</blue>
+          </color>
+         </brush>
+        </colorrole>
+         </disabled>
+        </palette>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="sendMessage">
+       <property name="minimumSize">
+        <size>
+         <width>180</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>180</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>send</string>
+       </property>
+      </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+     </layout>
+    </widget>
+    <widget class="QStatusBar" name="statusbar"/>
+   </widget>
+   <resources/>
+   <connections>
+    <connection>
+     <sender>sendMessage</sender>
+     <signal>clicked()</signal>
+     <receiver>ChatWindow</receiver>
+     <slot>send()</slot>
+     <hints>
+    <hint type="sourcelabel">
+     <x>532</x>
+     <y>287</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>657</x>
+     <y>318</y>
+    </hint>
+     </hints>
+    </connection>
+   </connections>
+   <slots>
+    <slot>send()</slot>
+   </slots>
+  </ui>
