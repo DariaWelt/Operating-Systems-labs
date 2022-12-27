@@ -54,13 +54,14 @@ public:
     }
 };
 
+
 template <typename T>
 class FineSet : public Set<T> {
 
 friend class FineNode<T>;
 
 private:
-    FineNode<T> *head;
+    FineNode<T> *head = nullptr;
     pthread_mutex_t head_m;
     std::function<int (const T&, const T&)> comparator;
 
@@ -73,8 +74,6 @@ private:
             delete cur;
             cur = tmp;
         }
-
-        delete head;
     }
 
     bool lock() {
@@ -88,6 +87,8 @@ private:
     }
 
 public:
+    FineSet() = default;
+
     FineSet(int &res,
         const std::function<int (const T&, const T&)> &cmp) :
         comparator(cmp) {
@@ -251,6 +252,14 @@ public:
             unlock();
 
         return res;
+    }
+
+    virtual bool empty() override {
+        return head == nullptr;
+    }
+
+    virtual std::string getType() override {
+        return "FINE_GAINED";
     }
 
     ~FineSet() {

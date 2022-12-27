@@ -24,7 +24,7 @@ public:
         item(), next(nullptr), next_rem(nullptr), comparator(cmp) {
         res = pthread_mutex_init(&m, 0);
         if (res != 0)
-            syslog(LOG_ERR, "Failed to destroy node");
+            syslog(LOG_ERR, "Failed to init node");
     };
 
     OptNode(int &res,
@@ -57,7 +57,6 @@ public:
 };
 
 
-// TODO : MAYBE WE NEED TO MAKE LIKE IN FINE SET ADDING?
 template <typename T>
 class OptSet : public Set<T> {
 
@@ -100,11 +99,11 @@ private:
             delete cur;
             cur = tmp;
         }
-        delete head;
-        delete head_rem;
     }
 
 public:
+    OptSet() = default;
+
     OptSet(int &res,
         const std::function<int (const T&, const T&)> &cmp) :
         comparator(cmp) {
@@ -285,6 +284,14 @@ public:
                 return res;
             }
         }
+    }
+
+    virtual bool empty() override {
+        return head->next == nullptr;
+    }
+
+    virtual std::string getType() override {
+        return "OPTI_GAINED";
     }
 
     ~OptSet() {

@@ -1,28 +1,71 @@
+#include <iostream>
+#include <fstream>
+#include <sys/syslog.h>
+
 #include "set/fine_set.h"
 #include "set/opt_set.h"
 
-#include <iostream>
-#include <cstdio>
+#include "tester/utils.h"
+#include "tester/tester.h"
 
-int comp(const int& a, const int& b) {
+int cmp(const int& a, const int& b) {
     return a - b;
 }
 
-int main(int argc, char *argv[]) {
-    int res;
-    OptSet<int> opt_set(res, comp);
-    FineSet<int> fine_set(res, comp);
 
-    for (int i = 0; i < 10; i++) {
-        fine_set.add(i);
-        if (!std::cout << opt_set.contains(i))
-            std::cout << "bad_add";
-    }
+void writeTesting(int threadsCnt = 4, int arrSize = 4000) {
+    int res = 0;
+    Tester<FineSet<int>>::getInstance().init(res, cmp);
+    Tester<OptSet<int>>::getInstance().init(res, cmp);
 
-    for (int i = 0; i < 10; i++) {
-        fine_set.remove(i);
-        if (!std::cout << opt_set.contains(i))
-            std::cout << "bad_remove";
-    }
-    return 0;
+    Tester<FineSet<int>>::getInstance().checkWriteCorrectWork(threadsCnt, arrSize);
+    Tester<OptSet<int>>::getInstance().checkWriteCorrectWork(threadsCnt, arrSize);
+}
+
+void readTesting(int threadsCnt = 4, int arrSize = 4000) {
+    int res = 0;
+    Tester<FineSet<int>>::getInstance().init(res, cmp);
+    Tester<OptSet<int>>::getInstance().init(res, cmp);
+
+    Tester<FineSet<int>>::getInstance().checkReadCorrectWork(threadsCnt, arrSize);
+    Tester<OptSet<int>>::getInstance().checkReadCorrectWork(threadsCnt, arrSize);
+}
+
+void generalTesting(int threadsCnt = 4, int arrSize = 4000) {
+    int res = 0;
+    Tester<FineSet<int>>::getInstance().init(res, cmp);
+    Tester<OptSet<int>>::getInstance().init(res, cmp);
+
+    Tester<FineSet<int>>::getInstance().checkGeneralCorrectWork(threadsCnt, arrSize);
+    Tester<OptSet<int>>::getInstance().checkGeneralCorrectWork(threadsCnt, arrSize);
+}
+
+void performanceTesting(int threadsCnt = 4, int arrSize = 1000, int testsSize = 5) {
+    int res = 0;
+    Tester<FineSet<int>>::getInstance().init(res, cmp);
+    Tester<OptSet<int>>::getInstance().init(res, cmp);
+
+    auto writeItems = generateItems(arrSize, 42);
+    Tester<FineSet<int>>::getInstance().checkWritePerformance(threadsCnt, arrSize, testsSize, writeItems);
+    Tester<OptSet<int>>::getInstance().checkWritePerformance(threadsCnt, arrSize, testsSize, writeItems);
+
+    auto readItems = generateUniqueItems(arrSize, 42);
+    Tester<FineSet<int>>::getInstance().checkReadPerformance(threadsCnt, arrSize, testsSize, readItems);
+    Tester<OptSet<int>>::getInstance().checkReadPerformance(threadsCnt, arrSize, testsSize, readItems);
+
+    auto generalItems = generateUniqueItems(arrSize, 42);
+    Tester<FineSet<int>>::getInstance().checkGeneralPerformance(threadsCnt, arrSize, testsSize, generalItems);
+    Tester<OptSet<int>>::getInstance().checkGeneralPerformance(threadsCnt, arrSize, testsSize, generalItems);
+}
+
+int main(int argc, char* argv[]) {
+    openlog("Lab3 log", LOG_NDELAY | LOG_PID, LOG_USER);
+
+    writeTesting();
+    readTesting();
+    generalTesting();
+
+    performanceTesting();
+
+	return 0;
 }
