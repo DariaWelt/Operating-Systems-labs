@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <chrono>
+#include <string>
 #define CPP11_ATOMIC //to use std::atomic in test
 #define CPP11  //to use built-in functions for Memory Model Aware Atomic Operations
 #ifdef CPP11_ATOMIC
@@ -30,12 +31,14 @@ struct LockFreeQueueConsumerArgs{
 
 static void* LockFreeQueueProduser(void* args){
     LockFreeQueueProduserArgs* params = (LockFreeQueueProduserArgs*)args;
-    for (int i = params->startNum; i <= params->endNum; ++i){
+    for (int i = params->startNum; i <= params->endNum;){
         params->queue->push(i);
         //std::cout << "Push " << i << ' ';
+        i++;
     }
     //std::cout << std::endl;
-    std::cout << "Pushed " << params->endNum - params->startNum + 1<< " number" << std::endl;
+    std::string str = "Pushed " + std::to_string(params->endNum - params->startNum + 1) + " number\n";
+    std::cout << str;
     return nullptr;
 }
 
@@ -56,23 +59,19 @@ static void* LockFreeQueueConsumer(void* args){
             #endif
             #endif
             readNum++;
-            //std::cout << "Pop " << *num;
             readFailed = 0;
         }   
         else{
-            //std::cout << "Failed pop ";
             readFailed++;
             sched_yield();
-            if (readFailed > 10000000){
-                std::cout << "Many failed of read" << std::endl;
-                std::cout << "Read " << readNum << std::endl;
-                params->queue->testQueue();
+            if (readFailed >= 100000){
+                std::cout << "Many failed of read\n";
                 break;
             }
         }
     }
-    std::cout << "Total read " << readNum << std::endl;
-    //std::cout << std::endl;
+    std::string str = "Total read " + std::to_string(readNum) + "\n";
+    std::cout << str;
     return nullptr;
 }
 
@@ -282,7 +281,7 @@ bool lockFreeQueuePushPopTest(int number, int repeatNum){
             for (int i = 0; i < number; ++i){
             #ifdef CPP11_ATOMIC
                 if(checkingVec[i].load() != repeatNum){
-                    std::cout << "FAILED TEST: to many repeat " << i << " in queue " << checkingVec[i] << " numbers " << std::endl;
+                    //std::cout << "FAILED TEST: to many repeat " << i << " in queue " << checkingVec[i] << " numbers " << std::endl;
                     isFailed = true;
                 }
             #else
