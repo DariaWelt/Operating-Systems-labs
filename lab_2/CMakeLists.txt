@@ -17,12 +17,12 @@ foreach(PATH_TO_CON ${CONNECTIONS})
     string(REGEX REPLACE "conn_" "" CONN_NAME ${FILE_NAME})
 
     qt5_wrap_cpp(GUI_SRC gui/MainWindow.h)
-    qt5_wrap_ui(GUI_UI gui/MainWindow.ui)
+    qt5_wrap_ui(GUI_UI gui/mainwindow.ui)
 
     add_executable(host_${CONN_NAME} ${GUI} ${GUI_UI} ${GUI_SRC} ${HOST}
-            conn/conn.hpp conn/conn_${CONN_NAME}.cpp conn/conn_${CONN_NAME}.h)
+            conn/conn.hpp conn/conn_${CONN_NAME}.cpp conn/conn_${CONN_NAME}.hpp)
     add_executable(client_${CONN_NAME} ${GUI} ${GUI_UI} ${GUI_SRC} ${CLIENT}
-            conn/conn.hpp conn/conn_${CONN_NAME}.cpp conn/conn_${CONN_NAME}.h host/host.h)
+            conn/conn.hpp conn/conn_${CONN_NAME}.cpp conn/conn_${CONN_NAME}.h host/host.hpp)
     target_link_libraries(host_${CONN_NAME} PUBLIC pthread rt Qt5::Widgets)
     target_link_libraries(client_${CONN_NAME} PUBLIC pthread rt Qt5::Widgets)
 endforeach()
