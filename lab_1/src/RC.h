@@ -1,6 +1,4 @@
-//
-// Created by aleksei on 10.10.2021.
-//
+
 
 #ifndef DAEMON_RC_H
 #define DAEMON_RC_H
