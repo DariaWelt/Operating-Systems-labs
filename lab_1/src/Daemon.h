@@ -21,9 +21,7 @@ private:
   static RC makeFork();
   static RC setPid();
   static void signalHandler(int signal);
-  bool copyFilesFromDir(const std::string& srcDir, const std::string& dstDir,
-                        const std::string& ext, const std::string& subfolder);
-  bool cleanDir(const std::string& path);
+  bool copyOldFiles(const string& srcDir, const string& dstDir);
 public:
   void init(std::string const& configFilePath);
   int execute();

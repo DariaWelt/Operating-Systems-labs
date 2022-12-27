@@ -164,54 +164,34 @@ int Daemon::execute()
     {
       syslog(LOG_INFO, "Executed");
       for (const auto &paramSet: m_configParams) {
-        isValid = cleanDir(paramSet.dstFolder);
-        if(isValid)
-          isValid = copyFilesFromDir(paramSet.srcFolder, paramSet.dstFolder, paramSet.extension, paramSet.subfolder);
-        else
-          break;
+          if(!copyOldFiles(paramSet.srcFolder, paramSet.dstFolder)
+           break;
       }
       sleep(m_timeInterval);
     }
     return isValid;
-
 }
 
-bool Daemon::copyFilesFromDir(const string& srcDir, const string& dstDir,
-                              const string& ext, const string& subfolder) {
-  try
-  {
-    for (auto const &file: filesystem::directory_iterator(m_absolutePath + srcDir))
-    {
-      if (file.is_directory())
-        continue;
-      string dst = m_absolutePath + dstDir;
-      dst += ext != filesystem::path(file).extension() ? "" : ("/" + subfolder);
-      if(!filesystem::exists(dst))
-      {
-        filesystem::create_directory(dst);
-      }
-
-      filesystem::copy(file, dst + "/" + filesystem::path(file).filename().string());
-    }
-  }
-  catch (const filesystem::filesystem_error& error)
-  {
-    syslog(LOG_ERR, "During copying files an error occurred %s", error.what());
-    kill(getpid(), SIGTERM);
-    return false;
-  }
-  return true;
+Daemon *Daemon::getInstance()
+{
+  if (!m_instance)
+    m_instance = new Daemon;
+  return m_instance;
 }
 
-bool Daemon::cleanDir(const std::string& path) {
-  try
+bool Daemon::copyOldFiles(const string& srcDir, const string& dstDir) {
+try
   {
     for (auto const &file: filesystem::directory_iterator(m_absolutePath +path))
     {
-      if (file.is_directory())
-        filesystem::remove_all(file);
-      else
-        filesystem::remove(file);
+      if (!file.is_directory())
+     {
+       auto now = filesystem::file_time_type::clock::now() ;
+     if( chrono::duration_cast<chrono::minutes>( chrono::now - filesystem::last_write_time(filesystem::path(file)) ).count() > 2 )
+     {
+         filesystem::copy(file, dst)
+     }
+     }
     }
   }
   catch (const filesystem::filesystem_error& error)
@@ -220,12 +200,4 @@ bool Daemon::cleanDir(const std::string& path) {
     kill(getpid(), SIGTERM);
     return false;
   }
-  return true;
-}
-
-Daemon *Daemon::getInstance()
-{
-  if (!m_instance)
-    m_instance = new Daemon;
-  return m_instance;
 }

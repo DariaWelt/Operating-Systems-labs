@@ -40,7 +40,7 @@ ConfigParser::Params ConfigParser::read_line(ifstream& fs, RC* rc, const string&
   }
   auto tokens = split(line);
 
-  if (tokens.size() != 4)
+  if (tokens.size() != 2)
   {
     *pRC = RC::WRONG_CONFIG_FORMAT;
     return {};
@@ -49,8 +49,6 @@ ConfigParser::Params ConfigParser::read_line(ifstream& fs, RC* rc, const string&
   Params result;
   result.srcFolder = tokens[0];
   result.dstFolder = tokens[1];
-  result.extension = tokens[2];
-  result.subfolder = tokens[3];
 
   if (!filesystem::is_directory(relativePath + result.srcFolder) || !filesystem::is_directory(relativePath + result.dstFolder))
   {
