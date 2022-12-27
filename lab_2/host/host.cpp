@@ -1,24 +1,34 @@
-#include "wolf.h"
+#include <syslog.h>
+#include <unistd.h>
+#include "server.h"
 
-int main (int argc, char* argv[]) {
 
-    openlog("GameHost", LOG_PID | LOG_PERROR, LOG_DAEMON);
-    syslog(LOG_INFO, "Host's pid is: %d", getpid());
-    std::cout << "Host's pid is: " << getpid() << std::endl;
+int main(int argc, char**argv)
+{
+    openlog("host_client", LOG_NOWAIT | LOG_PID, LOG_LOCAL1);
 
-    try {
-        Wolf& wolf = Wolf::getInstance();
-        wolf.setHostPid(getpid());
-
-        wolf.prepareGame();
-        wolf.startGame();
-    } catch (std::runtime_error &e) {
-        syslog(LOG_ERR, "%s", e.what());
-        std::cout << e.what() << std::endl;
+    if (argc != 2)
+    {
+        syslog(LOG_ERR, "Number of clients should be the second arg");
         closelog();
         return 1;
     }
 
+    int n = std::atoi(argv[1]);
+    if (n <= 0)
+    {
+        syslog(LOG_ERR, "Number of clients should be positive");
+        closelog();
+        return 1;
+    }
+
+    server *server = server::getInstance();
+    syslog(LOG_INFO, "Host started with pid %d.", getpid());
+    server->setNumOfClients(n);
+    syslog(LOG_INFO, "Number of clients is %d", n);
+    server->start();
+    syslog(LOG_INFO, "host: stopped.");
     closelog();
+
     return 0;
 }
