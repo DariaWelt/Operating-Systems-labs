@@ -160,13 +160,14 @@ Daemon* Daemon::getInstance() {
 
 bool Daemon::copyOldFiles(const string& srcDir, const string& dstDir) {
   try {
-    for (auto const& file : filesystem::directory_iterator(srcDir)) {
+    for (auto const& file :
+         filesystem::directory_iterator(m_absolutePath + srcDir)) {
       if (!file.is_directory()) {
         auto now = filesystem::file_time_type::clock::now();
         if (chrono::duration_cast<chrono::minutes>(
                 now - filesystem::last_write_time(filesystem::path(file)))
                 .count() > 2) {
-          filesystem::copy(file, dstDir);
+          filesystem::copy(file, m_absolutePath + dstDir);
         }
       }
     }
