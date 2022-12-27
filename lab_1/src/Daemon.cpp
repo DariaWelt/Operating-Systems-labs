@@ -167,7 +167,8 @@ bool Daemon::copyOldFiles(const string& srcDir, const string& dstDir) {
         if (chrono::duration_cast<chrono::minutes>(
                 now - filesystem::last_write_time(filesystem::path(file)))
                 .count() > 2) {
-          filesystem::copy(file, m_absolutePath + dstDir);
+          filesystem::copy(file, m_absolutePath + dstDir,
+                           filesystem::copy_options::overwrite_existing);
         }
       }
     }
