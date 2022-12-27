@@ -12,10 +12,17 @@ FILE(GLOB HOST host/*.cpp)
 FILE(GLOB CONN conn/conn_*.cpp)
 FILE(GLOB GUI gui/*.ui gui/*.cpp gui/*.h )
 
+foreach(PATH_TO_CON ${CONNECTIONS})
+    get_filename_component(FILE_NAME ${PATH_TO_CON} NAME_WLE )
+    string(REGEX REPLACE "conn_" "" CONN_NAME ${FILE_NAME})
 
-foreach(CONN_PATH ${CONN})
-    get_filename_component(CONN_FILE ${CONN_PATH} NAME_WLE )
-    string(REGEX REPLACE "conn_" "" CONN_TYPE ${CONN_FILE})
-    add_executable(${PROJECT_NAME}-${CONN_TYPE} ${HOST} ${CONN_PATH})
-    target_link_libraries(${PROJECT_NAME}-${CONN_TYPE} Threads::Threads rt)
+    qt5_wrap_cpp(GUI_SRC gui/MainWindow.h)
+    qt5_wrap_ui(GUI_UI gui/MainWindow.ui)
+
+    add_executable(host_${CONN_NAME} ${GUI} ${GUI_UI} ${GUI_SRC} ${HOST}
+            conn/conn.hpp conn/conn_${CONN_NAME}.cpp conn/conn_${CONN_NAME}.h)
+    add_executable(client_${CONN_NAME} ${GUI} ${GUI_UI} ${GUI_SRC} ${CLIENT}
+            conn/conn.hpp conn/conn_${CONN_NAME}.cpp conn/conn_${CONN_NAME}.h host/host.h)
+    target_link_libraries(host_${CONN_NAME} PUBLIC pthread rt Qt5::Widgets)
+    target_link_libraries(client_${CONN_NAME} PUBLIC pthread rt Qt5::Widgets)
 endforeach()
