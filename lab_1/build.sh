@@ -1,14 +1,14 @@
-#!/bin/bash
+pidPath="/var/run/yupichkin_lab1.pid"
 
-pidFilePath="/var/run/lab1.pid"
+[[ -f pidPath ]] || sudo touch "$pidPath"
 
-[[ -f $pidFilePath ]] || sudo touch "$pidFilePath"
+sudo chmod 666 "$pidPath"
 
-sudo chmod 666 "$pidFilePath"
-
-cmake .
+mkdir build
+# shellcheck disable=SC2164
+cd build
+cmake -S ../ -B ./
 make
-rm CMakeCache.txt Makefile cmake_install.cmake
-FILE=lab_var6.cbp
-[[ -f "$FILE" ]] && rm "$FILE"
-rm -r CMakeFiles/
+cp ./daemon ../daemon
+cd ../
+rm -r build/
