@@ -1,25 +1,19 @@
-cmake_minimum_required(VERSION 3.16)
-project(lab2)
+project(wolf-and-goats)
+cmake_minimum_required(VERSION 3.1)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-Wall -Werror)
 
-file(GLOB CONNS conn/conn_*.cpp)
-file(GLOB HOST host/*.cpp host/*.h)
-file(GLOB CLIENT client/*.cpp client/*.h)
-file(GLOB SETTING settings/*.h settings/*.cpp)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
-foreach(CONN_PATH ${CONNS})
-    get_filename_component(FILE_NAME ${CONN_PATH} NAME_WLE)
-    string(REGEX REPLACE "conn_" "" TYPE_MODE ${FILE_NAME})
+include_directories(host client conn utils)
+FILE(GLOB HOST host/*.cpp)
+FILE(GLOB CONN conn/conn_*.cpp)
 
-    add_executable(client_${TYPE_MODE} ${CLIENT} ${SETTINGS} conn/conn.h
-            conn/conn_${TYPE_MODE}.cpp conn/conn_${TYPE_MODE}.h)
-
-    add_executable(host_${TYPE_MODE} ${HOST} ${SETTINGS} conn/conn.h
-            conn/conn_${TYPE_MODE}.cpp conn/conn_${TYPE_MODE}.h)
-
-    target_link_libraries(client_${TYPE_MODE} rt pthread)
-    target_link_libraries(host_${TYPE_MODE} rt pthread)
+foreach(CONN_PATH ${CONN})
+    get_filename_component(CONN_FILE ${CONN_PATH} NAME_WLE )
+    string(REGEX REPLACE "conn_" "" CONN_TYPE ${CONN_FILE})
+    add_executable(${PROJECT_NAME}-${CONN_TYPE} ${HOST} ${CONN_PATH})
+    target_link_libraries(${PROJECT_NAME}-${CONN_TYPE} Threads::Threads rt)
 endforeach()

@@ -1,17 +1,9 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-mkdir "build"
-
-cmake -S ./ -B build
-
-cd build
-
+mkdir build
+cd build || exit
+cmake ..
 cmake --build .
-
-mv host* ../
-mv client* ../
-
 cd ..
-
-rm -r build
-
+mv build/wolf-and-goats-* .
+rm -rf build
