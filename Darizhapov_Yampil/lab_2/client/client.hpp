@@ -1,8 +1,11 @@
 #pragma once
-#include "conn.hpp"
+#include "../conn/conn.hpp"
+//#include "conn.hpp"
 #include "goat.hpp"
-#include "message.hpp"
-#include "utils.hpp"
+#include "../conn/message.hpp"
+//#include "message.hpp"
+#include "../utils/utils.hpp"
+//#include "utils.hpp"
 #include <semaphore.h>
 #include <stdexcept>
 

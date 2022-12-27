@@ -1,8 +1,12 @@
 #pragma once
-#include "client.hpp"
-#include "conn.hpp"
-#include "message.hpp"
-#include "utils.hpp"
+#include "../client/client.hpp"
+//#include "client.hpp"
+#include "../conn/conn.hpp"
+//#include "conn.hpp"
+#include "../conn/message.hpp"
+//#include "message.hpp"
+#include "../utils/utils.hpp"
+//#include "utils.hpp"
 #include "wolf.hpp"
 #include <iostream>
 #include <semaphore.h>

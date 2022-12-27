@@ -8,9 +8,9 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 include_directories(host client conn utils gui)
-FILE(GLOB HOST host/*.cpp)
-FILE(GLOB CONN conn/conn_*.cpp)
-FILE(GLOB GUI gui/*.ui gui/*.cpp gui/*.h )
+FILE(GLOB host host/*.cpp)
+FILE(GLOB conn conn/conn_*.cpp)
+FILE(GLOB gui gui/*.ui gui/*.cpp gui/*.h )
 
 foreach(PATH_TO_CON ${CONNECTIONS})
     get_filename_component(FILE_NAME ${PATH_TO_CON} NAME_WLE )
@@ -20,9 +20,9 @@ foreach(PATH_TO_CON ${CONNECTIONS})
     qt5_wrap_ui(GUI_UI gui/mainwindow.ui)
 
     add_executable(host_${CONN_NAME} ${GUI} ${GUI_UI} ${GUI_SRC} ${HOST}
-            conn/conn.hpp conn/conn_${CONN_NAME}.cpp conn/conn_${CONN_NAME}.hpp)
+            conn/conn.hpp conn/conn_${CONN_NAME}.cpp conn/conn_${CONN_NAME}.hpp host/host.hpp)
     add_executable(client_${CONN_NAME} ${GUI} ${GUI_UI} ${GUI_SRC} ${CLIENT}
-            conn/conn.hpp conn/conn_${CONN_NAME}.cpp conn/conn_${CONN_NAME}.h host/host.hpp)
+            conn/conn.hpp conn/conn_${CONN_NAME}.cpp conn/conn_${CONN_NAME}.h host/host.hpp host/host.hpp)
     target_link_libraries(host_${CONN_NAME} PUBLIC pthread rt Qt5::Widgets)
     target_link_libraries(client_${CONN_NAME} PUBLIC pthread rt Qt5::Widgets)
 endforeach()
