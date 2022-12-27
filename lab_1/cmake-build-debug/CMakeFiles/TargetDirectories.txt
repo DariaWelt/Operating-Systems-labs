@@ -1,3 +1,0 @@
-D:/Study/op_sys/lab_1/cmake-build-debug/CMakeFiles/daemon.dir
-D:/Study/op_sys/lab_1/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/Study/op_sys/lab_1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
