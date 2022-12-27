@@ -1,0 +1,23 @@
+#Push-pop test
+PushPopTest: 10000 10
+
+#Easy one thread push test
+#PushTest: 1 10000 1
+#Easy one thread pop test
+#PopTest: 1 10000 1
+
+#Easy pop test
+PopTest: 10 10000 1
+#Easy push test
+PushTest: 10 10000 1
+
+#Time one thread pop test
+#PopTest: 1 10000 100
+#Time one thread push test
+#PushTest: 1 10000 100
+
+#Time multy thread pop test
+#PopTest: 10 10000 100
+#Time multy thread push test
+#PushTest: 10 10000 100
+
